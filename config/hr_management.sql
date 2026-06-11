@@ -15,6 +15,7 @@ USE hr_management;
 -- -- 3. Apply the new permissions immediately
 -- FLUSH PRIVILEGES;
 
+-- -- 4. Every table contains this columns
 -- created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 -- updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 
