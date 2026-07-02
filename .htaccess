@@ -1,10 +1,3 @@
-Options -Indexes
-
 RewriteEngine On
-
-# Allow direct file access
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-
-# Route everything through index.php
-RewriteRule ^ index.php [QSA,L]
+RewriteCond %{REQUEST_URI} !^/resources/public/
+RewriteRule ^(.*)$ public/$1 [L]
