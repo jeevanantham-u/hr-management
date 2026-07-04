@@ -5,6 +5,12 @@ namespace App\Core;
 class Router
 {
     protected array $routes = [];
+    private Request $request;
+
+    public function __construct(Request $request)
+    {
+        $this->request = $request;
+    }
 
     protected function addRoute(
         string $method,
@@ -49,21 +55,13 @@ class Router
         $this->addRoute('DELETE', $route, $controllerAction);
     }
 
-    public function dispatch(string $requestUri, string $requestMethod): void
+    public function dispatch(): void
     {
         // echo " hello router";
-        $url = parse_url($requestUri, PHP_URL_PATH);
-        $baseUrl = '/resources';
+        $url = $this->request->path();
+        $method = $this->request->method();
 
-        if (str_starts_with($url, $baseUrl)) {
-            $url = substr($url, strlen($baseUrl));
-        }
-
-        if ($url === '' || $url === false) {
-            $url = '/';
-        }
-       
-        $method = strtoupper($requestMethod);
+        echo json_encode($this->request->body());
 
         if (!isset($this->routes[$method])) {
             http_response_code(405);

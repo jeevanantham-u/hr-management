@@ -11,26 +11,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
-# 1. Load and Register Autoloader (Points to app/Core/Autoloader.php)
-require_once  '../app/Core/Autoloader.php';
+#Load Composer PSR-4 autoloader
+require_once __DIR__ . '/../vendor/autoload.php';
 
-use App\Core\Autoloader;
 use App\Core\ExceptionHandler;
+use App\Core\Request;
 use App\Core\Router;
 
-Autoloader::register();
-
-# 2. Start Global Exception Handling
+# Start Global Exception Handling
 ExceptionHandler::register();
 
-# 3. Initialize Router
-$router = new Router();
+#Initiate Reqest handler
+$request = new Request();
 
-# 4. Load App Routes from External File
+# Initialize Router
+$router = new Router($request);
+
+#Load App Routes from External File
 require_once '../routes/api.php';
 
-# 5. Catch and Resolve Request
-$router->dispatch(
-    $_SERVER['REQUEST_URI'],
-    $_POST['_method'] ?? $_SERVER['REQUEST_METHOD']
-);
+#Catch and Resolve Request
+$router->dispatch();
