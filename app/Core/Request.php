@@ -6,6 +6,7 @@ class Request
 {
     private array $queryParams = [];
     private array $bodyParams = [];
+    private array $routeParams = [];
     private string $method;
     private string $path;
     private array $headers;
@@ -50,6 +51,15 @@ class Request
         return $this->path;
     }
 
+    public function route(?string $key = null, $default = null)
+    {
+        if ($key === null) {
+            return $this->routeParams;
+        }
+
+        return $this->routeParams[$key] ?? $default;
+    }
+
     public function header(string $key, $default = null)
     {
         return $this->headers[$key] ?? $default;
@@ -62,6 +72,11 @@ class Request
         }
 
         return $this->bodyParams[$key] ?? $default;
+    }
+
+     public function setRouteParams(array $params): void
+    {
+        $this->routeParams = $params;
     }
 
     public function bearerToken(): ?string

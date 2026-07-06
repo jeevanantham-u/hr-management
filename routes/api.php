@@ -1,28 +1,14 @@
 <?php
-// echo " hello route";
-// Version prefix for API routes
+use App\Controllers\UserController;
+
 $version = 'v1';
-
-// IMPORTANT:
-// This file is included by core/routes.php after $router is initialized.
-// Do not rely on $router existing if this file is required standalone.
-
-// if (!isset($router) || !method_exists($router, 'get')) {
-//     return;
-// }
-
-// Router expects path-only values.
-// Under php -S -t public: /v1/users
-// Under typical Apache hosting: /Human_Resources/v1/users
 $userPrefix = "/{$version}/users";
 
-$router->get($userPrefix, "User@index");
-$router->get($userPrefix . '/{id}', "User@show");
-
-// $basePrefix = "/Human_Resources" . $userPrefix;
-// $router->get($basePrefix, "User@index");
-// $router->get($basePrefix . '/', "User@index");
-
+$router->get($userPrefix, [UserController::class, 'index']);
+$router->get("$userPrefix/{id}",  [UserController::class, 'show']);
+$router->post("$userPrefix/create", [UserController::class, 'store']);
+$router->post("$userPrefix/update/{id}", [UserController::class, 'update']);
+$router->delete("$userPrefix/delete/{id}", [UserController::class, 'destroy']);
 
 
 
