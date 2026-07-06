@@ -1,10 +1,11 @@
 <?php
 namespace App\Controllers;
 
+use App\Core\Controller;
 use App\Core\Request;
 use App\Models\User;
 
-class UserController
+class UserController extends Controller
 {
     private User $userModel;
 
@@ -15,50 +16,70 @@ class UserController
 
     public function index()
     {
-        // Instantiate the user model (which connects to the DB via BaseModel)
-        $users = $this->userModel->getAllUsers();
+        try {
+            $users = $this->userModel->getAllUsers();
 
-        echo json_encode(['success' => true, 'data' => $users], JSON_PRETTY_PRINT);
+            $this->success($users, "Users retrieved successfully.", 200);
+        } catch (\Exception $e) {
+            $this->error($e->getMessage(), null, 500);
+        }
     }
 
     public function show(Request $request)
     {
-        $id = $request->route('id');
-        $users = $this->userModel->findById($id);
+        try {
+            $id = $request->route('id');
+            $user = $this->userModel->findById($id);
 
-        echo json_encode(['success' => true, 'data' => $users], JSON_PRETTY_PRINT);
+            $this->success($user, "User retrieved successfully.", 200);
+        } catch (\Exception $e) {
+            $this->error($e->getMessage(), null, 500);
+        }
     }
 
     public function store(Request $request)
     {
-        $userInfo = [
-            'username' => $request->body('username'),
-            'email' => $request->body('email'),
-            'password' => $request->body('password'),
-            'role_id' => $request->body('role_id')
-        ];
+        try {
+            $userInfo = [
+                'username' => $request->body('username'),
+                'email' => $request->body('email'),
+                'password' => $request->body('password'),
+                'role_id' => $request->body('role_id')
+            ];
 
-        $user = $this->userModel->createUser($userInfo);
+            $user = $this->userModel->createUser($userInfo);
 
-        echo json_encode(['success' => true, 'data' => $user], JSON_PRETTY_PRINT);
+            $this->success($user, "User created successfully.", 200);
+        } catch (\Exception $e) {
+            $this->error($e->getMessage(), null, 500);
+        }
     }
 
     public function update(Request $request)
     {
-        $userInfo = $request->body();
-        $id = $request->route('id');
+        try {
+            $userInfo = $request->body();
+            $id = $request->route('id');
 
-        $user = $this->userModel->editUserById($id, $userInfo);
+            $user = $this->userModel->editUserById($id, $userInfo);
 
-        echo json_encode(['success' => true, 'data' => $user], JSON_PRETTY_PRINT);
+            $this->success($user, "User updated successfully.", 200);
+        } catch (\Exception $e) {
+            $this->error($e->getMessage(), null, 500);
+        }
+
     }
 
     public function destroy(Request $request)
     {
-        $id = $request->route('id');
+        try {
+            $id = $request->route('id');
 
-        $user = $this->userModel->deleteById($id);
+            $user = $this->userModel->deleteById($id);
 
-        echo json_encode(['success' => true, 'data' => ["user" => $user]], JSON_PRETTY_PRINT);
+            $this->success($user, "User deleted  successfully.", 200);
+        } catch (\Exception $e) {
+            $this->error($e->getMessage(), null, 500);
+        }
     }
 }
