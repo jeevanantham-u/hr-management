@@ -47,9 +47,21 @@ class UserController extends Controller
                 'role_id' => $request->body('role_id')
             ];
 
-            $user = $this->userModel->createUser($userInfo);
+            $rules = [
+                'username' => 'required',
+                'email' => 'required|email',
+                'password' => 'required',
+                'role_id' => 'required'
+            ];
 
-            $this->success($user, "User created successfully.", 200);
+            $is_valid = $this->validate($userInfo, $rules);
+            if (empty($is_valid)) {
+                $user = $this->userModel->createUser($userInfo);
+
+                $this->success($user, "User created successfully.", 200);
+            }
+
+            $this->error('Somthing went wrong', $is_valid, 500);
         } catch (\Exception $e) {
             $this->error($e->getMessage(), null, 500);
         }
