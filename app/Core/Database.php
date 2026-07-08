@@ -5,28 +5,91 @@ use PDO;
 use PDOException;
 
 
-class Database {
-    private static ?PDO $instance = null;
+class Database
+{
+    private static ?PDO $connection = null;
 
-    public static function getConnection(): PDO {
-        if (self::$instance === null) {
+    public static function connect(): PDO
+    {
+        if (self::$connection === null) {
             try {
-                // Change these credentials to match your setup
-                $dsn = "mysql:host=localhost;dbname=hr_management;charset=utf8mb4";
-                $username = "root";
-                $password = "";
-                
-                self::$instance = new PDO($dsn, $username, $password, [
-                    PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+                $dsn = "mysql:host={$_ENV['DB_HOST']};dbname={$_ENV['DB_NAME']};charset=utf8mb4";
+                $username = $_ENV['DB_USER'];
+                $password = $_ENV['DB_PASSWORD'];
+
+                self::$connection = new PDO($dsn, $username, $password, [
+                    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
                     PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-                    PDO::ATTR_EMULATE_PREPARES   => false,
+                    PDO::ATTR_EMULATE_PREPARES => false,
                 ]);
             } catch (PDOException $e) {
-                // This will be caught automatically by your core\ExceptionHandler!
                 throw new \Exception("Database Connection Failed: " . $e->getMessage());
             }
         }
 
-        return self::$instance;
+        return self::$connection;
+    }
+
+    public static function getInstance(): PDO
+    {
+        if (self::$connection == null) {
+            throw new \Exception("Database not connected. Call Database::connect() first.");
+        }
+
+        return self::$connection;
+    }
+
+    public static function query(string $sql, array $bindings = []): \PDOStatement
+    {
+        $connection = self::getInstance();
+        $statement = $connection->prepare($sql);
+        $statement->execute($bindings);
+        return $statement;
+    }
+
+    public static function select(string $sql, array $bindings = []): array
+    {
+        return self::query($sql, $bindings)->fetchAll();
+    }
+
+    public static function selectOne(string $sql, array $bindings = []): array
+    {
+        return self::query($sql, $bindings)->fetch();
+    }
+
+    public static function insert(string $sql, array $bindings = []): int
+    {
+        self::query($sql, $bindings);
+        return (int) self::getInstance()->lastInsertId();
+    }
+
+    public static function update(string $sql, array $bindings = []): int
+    {
+        return self::query($sql, $bindings)->rowCount();
+    }
+
+    public static function delete(string $sql, array $bindings = []): int
+    {
+        return self::query($sql, $bindings)->rowCount();
+    }
+
+    public static function transaction(callable $callback)
+    {
+        $connection = self::getInstance();
+
+        try {
+            $connection->beginTransaction();
+            $result = $callback($connection);
+            $connection->commit();
+            return $result;
+        } catch (\Exception $e) {
+            $connection->rollBack();
+            throw $e;
+        }
+    }
+
+    public static function close()
+    {
+        return self::$connection = null;
     }
 }

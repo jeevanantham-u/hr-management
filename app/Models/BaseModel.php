@@ -9,6 +9,6 @@ abstract class BaseModel {
 
     public function __construct() {
         // Automatically assign the single PDO instance to the model
-        $this->db = Database::getConnection();
+        $this->db = Database::connect();
     }
 }

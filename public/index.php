@@ -11,8 +11,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
-#Load Composer PSR-4 autoloader
-require_once __DIR__ . '/../vendor/autoload.php';
+define('ROOT_PATH', dirname(__DIR__));
+
+# Load Composer PSR-4 autoloader
+require_once ROOT_PATH . '/vendor/autoload.php';
+
+# Initialize Dotenv pointing to the project root directory
+$dotenv = Dotenv\Dotenv::createImmutable(ROOT_PATH);
+$dotenv->load();
 
 use App\Core\ExceptionHandler;
 use App\Core\Request;

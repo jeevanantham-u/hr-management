@@ -1,14 +1,12 @@
 <?php
 namespace App\Models;
 
-class User extends BaseModel
+use App\Core\Model;
+class User extends Model
 {
-
     public function getAllUsers()
     {
-        // Look how clean this is! $this->db is already available.
-        $stmt = $this->db->query("SELECT id, email, role_id FROM users WHERE is_active = 1");
-        return $stmt->fetchAll();
+       ret
     }
 
     public function findById($id)
