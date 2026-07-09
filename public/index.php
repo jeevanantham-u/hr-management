@@ -11,6 +11,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
+// Hide errors from the user's browser screen
+ini_set('display_errors', '0');
+ini_set('display_startup_errors', '0');
+
+// Keep recording errors silently into a secure log file
+ini_set('log_errors', '1');
+error_reporting(E_ALL); 
+
+
 define('ROOT_PATH', dirname(__DIR__));
 
 # Load Composer PSR-4 autoloader
@@ -23,6 +32,7 @@ $dotenv->load();
 use App\Core\ExceptionHandler;
 use App\Core\Request;
 use App\Core\Router;
+use App\Core\Database;
 
 # Start Global Exception Handling
 ExceptionHandler::register();
@@ -32,6 +42,9 @@ $request = new Request();
 
 # Initialize Router
 $router = new Router($request);
+
+# Initialize Database
+Database::connect();
 
 #Load App Routes from External File
 require_once '../routes/api.php';
