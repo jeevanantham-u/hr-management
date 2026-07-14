@@ -52,9 +52,10 @@ class Database
         return self::query($sql, $bindings)->fetchAll();
     }
 
-    public static function selectOne(string $sql, array $bindings = []): array
+    public static function selectOne(string $sql, array $bindings = []): ?array
     {
-        return self::query($sql, $bindings)->fetch();
+        $row = self::query($sql, $bindings)->fetch();
+        return $row ?: null; 
     }
 
     public static function insert(string $sql, array $bindings = []): int

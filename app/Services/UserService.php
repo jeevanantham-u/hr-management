@@ -13,39 +13,28 @@ class UserService
         $this->repository = new UserRepository();
     }
 
-     public function getAllUsers()
+    public function getAllUsers()
     {
         return $this->repository->all();
     }
 
     public function findById($id)
     {
-        return $this->repository->find([$id]);
+        return $this->repository->find($id);
     }
+
     public function createUser($data)
     {
-        return $this->repository->insert($data);
+        return $this->repository->create($data);
     }
 
-    public function editUserById($id, $data)
+    public function updateUser($id, $data)
     {
-        if (empty($data)) {
-            return false;
-        }
-
-        $fields = [];
-        $values = ['id' => $id];
-        foreach ($data as $key => $value) {
-            $fields[] = "{$key} = :{$key}";
-            $values[$key] = $value;
-        }
-
-        $setString = implode(', ', $fields);
-        return $this->repository->update($setString, $values);
+        return $this->repository->update($id, $data);
     }
 
-    public function deleteById($id)
+    public function deleteUser($id)
     {
-        return $this->repository->delete([$id]);
+        return $this->repository->delete($id);
     }
 }

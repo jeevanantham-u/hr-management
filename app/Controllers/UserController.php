@@ -3,23 +3,22 @@ namespace App\Controllers;
 
 use App\Core\Controller;
 use App\Core\Request;
-use App\Models\User;
+use App\Services\UserService;
 
 class UserController extends Controller
 {
-    private User $userModel;
+    private UserService $userService;
 
     public function __construct()
     {
-        $this->userModel = new User();
+        $this->userService = new UserService();
     }
 
     public function index()
     {
         try {
-            $users = $this->userModel->getAllUsers();
-
-            $this->success($users, "Users retrieved successfully.", 200);
+            $users = $this->userService->getAllUsers();
+            $this->success($users, "User retrieved successfully.", 200);
         } catch (\Exception $e) {
             $this->error($e->getMessage(), null, 500);
         }
@@ -29,9 +28,9 @@ class UserController extends Controller
     {
         try {
             $id = $request->route('id');
-            $user = $this->userModel->findById($id);
+            $user = $this->userService->findById($id);
 
-            $this->success($user, "User retrieved successfully.", 200);
+            $this->success($user->toArray(), "User retrieved successfully.", 200);
         } catch (\Exception $e) {
             $this->error($e->getMessage(), null, 500);
         }
@@ -40,28 +39,10 @@ class UserController extends Controller
     public function store(Request $request)
     {
         try {
-            $userInfo = [
-                'username' => $request->body('username'),
-                'email' => $request->body('email'),
-                'password' => $request->body('password'),
-                'role_id' => $request->body('role_id')
-            ];
+            $data = $request->body();
+            $user = $this->userService->createUser($data);
 
-            $rules = [
-                'username' => 'required',
-                'email' => 'required|email',
-                'password' => 'required',
-                'role_id' => 'required'
-            ];
-
-            $is_valid = $this->validate($userInfo, $rules);
-            if (empty($is_valid)) {
-                $user = $this->userModel->createUser($userInfo);
-
-                $this->success($user, "User created successfully.", 200);
-            }
-
-            $this->error('Somthing went wrong', $is_valid, 500);
+            $this->success($user, "User created successfully.", 200);
         } catch (\Exception $e) {
             $this->error($e->getMessage(), null, 500);
         }
@@ -70,28 +51,33 @@ class UserController extends Controller
     public function update(Request $request)
     {
         try {
-            $userInfo = $request->body();
+            $data = $request->body();
             $id = $request->route('id');
-
-            $user = $this->userModel->editUserById($id, $userInfo);
+            $user = $this->userService->updateUser($id, $data);
 
             $this->success($user, "User updated successfully.", 200);
         } catch (\Exception $e) {
             $this->error($e->getMessage(), null, 500);
         }
-
     }
 
-    public function destroy(Request $request)
-    {
+    public function destroy(Request $request){
         try {
             $id = $request->route('id');
+            $user = $this->userService->deleteUser($id);
 
-            $user = $this->userModel->deleteById($id);
-
-            $this->success($user, "User deleted  successfully.", 200);
+            $this->success($user, "User deleted successfully.", 200);
         } catch (\Exception $e) {
             $this->error($e->getMessage(), null, 500);
         }
     }
 }
+
+// catch (\Throwable $e) {
+//             echo $e->getMessage();
+//             echo "<br>";
+//             echo $e->getFile();
+//             echo "<br>";
+//             echo $e->getLine();
+//             var_dump($e);
+//         }
