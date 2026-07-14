@@ -1,28 +1,30 @@
 <?php
-namespace App\Models;
 
-use App\Core\Model;
-class User extends Model
+namespace App\Services;
+
+use App\Repositories\UserRepository;
+
+class UserService
 {
-    protected string $table = 'users';
-    protected string $primaryKey = 'id';
-    protected array $fillable = [
-        'email',
-        'username'
-    ];
+    private UserRepository $repository;
 
-    public function getAllUsers()
+    public function __construct()
     {
-        return $this->all();
+        $this->repository = new UserRepository();
+    }
+
+     public function getAllUsers()
+    {
+        return $this->repository->all();
     }
 
     public function findById($id)
     {
-        return $this->find([$id]);
+        return $this->repository->find([$id]);
     }
     public function createUser($data)
     {
-        return $this->insert($data);
+        return $this->repository->insert($data);
     }
 
     public function editUserById($id, $data)
@@ -39,11 +41,11 @@ class User extends Model
         }
 
         $setString = implode(', ', $fields);
-        return $this->update($setString, $values);
+        return $this->repository->update($setString, $values);
     }
 
     public function deleteById($id)
     {
-        return $this->delete([$id]);
+        return $this->repository->delete([$id]);
     }
 }

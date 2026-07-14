@@ -1,17 +1,11 @@
 <?php
-namespace App\Core;
 
-use App\Core\Database;
+namespace App\Repositories;
 
-abstract class Model
+use App\Models\User;
+
+class UserRepository
 {
-    protected string $table;
-    protected string $primaryKey = 'id';
-    protected array $fillable = [];
-    protected array $hidden = [];
-    protected array $attributes = [];
-    protected array $timestamps = ['created_at', 'updated_at'];
-    
     public function all(): array
     {
         return Database::select("SELECT id, email, role_id FROM users WHERE is_active = 1");
@@ -36,5 +30,4 @@ abstract class Model
     {
         return Database::delete("UPDATE users SET is_active = 0 WHERE id = :id", $id);
     }
-
 }
