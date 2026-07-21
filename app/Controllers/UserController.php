@@ -16,61 +16,10 @@ class UserController extends Controller
 
     public function index()
     {
-        try {
-            $users = $this->userService->getAllUsers();
-            $this->success($users, "User retrieved successfully.", 200);
-        } catch (\Exception $e) {
-            $this->error($e->getMessage(), null, 500);
-        }
+        $users = $this->userService->getAllUsers();
+        $this->success($users, "User retrieved successfully.", 200);
     }
 
-    public function show(Request $request)
-    {
-        try {
-            $id = $request->route('id');
-            $user = $this->userService->findById($id);
-
-            $this->success($user->toArray(), "User retrieved successfully.", 200);
-        } catch (\Exception $e) {
-            $this->error($e->getMessage(), null, 500);
-        }
-    }
-
-    public function store(Request $request)
-    {
-        try {
-            $data = $request->body();
-            $user = $this->userService->createUser($data);
-
-            $this->success($user, "User created successfully.", 200);
-        } catch (\Exception $e) {
-            $this->error($e->getMessage(), null, 500);
-        }
-    }
-
-    public function update(Request $request)
-    {
-        try {
-            $data = $request->body();
-            $id = $request->route('id');
-            $user = $this->userService->updateUser($id, $data);
-
-            $this->success($user, "User updated successfully.", 200);
-        } catch (\Exception $e) {
-            $this->error($e->getMessage(), null, 500);
-        }
-    }
-
-    public function destroy(Request $request){
-        try {
-            $id = $request->route('id');
-            $user = $this->userService->deleteUser($id);
-
-            $this->success($user, "User deleted successfully.", 200);
-        } catch (\Exception $e) {
-            $this->error($e->getMessage(), null, 500);
-        }
-    }
 }
 
 // catch (\Throwable $e) {

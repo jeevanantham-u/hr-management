@@ -17,24 +17,4 @@ class UserService
     {
         return $this->repository->all();
     }
-
-    public function findById($id)
-    {
-        return $this->repository->find($id);
-    }
-
-    public function createUser($data)
-    {
-        return $this->repository->create($data);
-    }
-
-    public function updateUser($id, $data)
-    {
-        return $this->repository->update($id, $data);
-    }
-
-    public function deleteUser($id)
-    {
-        return $this->repository->delete($id);
-    }
 }
