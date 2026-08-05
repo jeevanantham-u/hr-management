@@ -13,9 +13,14 @@ class User extends Model
         'username',
         'password',
         'role_id',
-        'is_active',
+        'is_active'
     ];
     protected array $hidden = ['password'];
+
+    public function setPasswordAttribute($password)
+    {
+        $this->attributes['password'] = password_hash($password, PASSWORD_BCRYPT);
+    }
 
     /**
      * Example relationship — requires a `posts` table with a `user_id` column.
