@@ -1,0 +1,14 @@
+2. Time Off & Leave Adjustments
+public_holidays: Stores official holidays to calculate overtime or comp-offs (e.g., id, holiday_name, holiday_date).
+
+leave_balances: Tracks remaining leave days per employee per leave type for a given year (e.g., id, employee_id, leave_type_id, year, entitled_days, used_days, remaining_days).
+
+3. Hotel Department Operations & Guest Service
+designations / job_titles: Normalizes job positions (e.g., Head Chef, Receptionist, Room Attendant) separate from system access roles (e.g., id, department_id, title, description).
+
+employee_trainings: Tracks hotel safety, hygiene, and hospitality training compliance (e.g., id, employee_id, training_title, completion_date, expiry_date).
+
+4. Financial & Expense Tracking
+salary_components / pay_slips: Breaks down salary structure into Base Pay, Overtime, Tips, Allowances, and Deductions/Taxes.
+
+employee_expenses: Handles reimbursement requests for hotel operational expenses incurred by staff (e.g., id, employee_id, amount, category, receipt_path, status).

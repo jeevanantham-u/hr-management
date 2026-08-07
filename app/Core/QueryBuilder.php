@@ -118,7 +118,7 @@ class QueryBuilder
         return $this;
     }
 
-protected function buildSelectSql(): string
+    protected function buildSelectSql(): string
     {
         $sql = 'SELECT ' . implode(', ', $this->columns) . " FROM {$this->table}";
 

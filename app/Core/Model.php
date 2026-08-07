@@ -71,6 +71,8 @@ abstract class Model implements JsonSerializable
 
         $id = Database::insert($sql, array_values($fillable));
         if ($id) {
+            $this->attributes['id'] = $id;
+            
             foreach ($fillable as $k => $v) {
                 $this->attributes[$k] = $v;
             }
