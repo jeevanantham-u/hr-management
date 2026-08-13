@@ -49,6 +49,18 @@ abstract class Model implements JsonSerializable
         return $model;
     }
 
+    public static function where(string $column, $operator, $value = null): QueryBuilder
+    {
+        if ($value === null) {
+            $value = $operator;
+            $operator = '=';
+        }
+
+        $instance = new static();
+        return (new QueryBuilder($instance->table, $instance->primaryKey, static::class))
+            ->where($column, $operator, $value);
+    }
+
     protected function fillableAttributes()
     {
         return array_intersect_key($this->attributes, array_flip($this->fillable));
@@ -72,7 +84,7 @@ abstract class Model implements JsonSerializable
         $id = Database::insert($sql, array_values($fillable));
         if ($id) {
             $this->attributes['id'] = $id;
-            
+
             foreach ($fillable as $k => $v) {
                 $this->attributes[$k] = $v;
             }

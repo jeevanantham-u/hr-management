@@ -1,4 +1,5 @@
 <?php
+use App\Controllers\AuthController;
 use App\Controllers\UserController;
 
 $version = 'v1';
@@ -9,6 +10,9 @@ $router->get("$userPrefix/{id}",  [UserController::class, 'show']);
 $router->post("$userPrefix/create", [UserController::class, 'store']);
 $router->post("$userPrefix/update/{id}", [UserController::class, 'update']);
 $router->delete("$userPrefix/delete/{id}", [UserController::class, 'destroy']);
+
+$router->post("/$version/login", [AuthController::class, 'login']);
+$router->post("/$version/register", [AuthController::class, 'register']);
 
 
 
