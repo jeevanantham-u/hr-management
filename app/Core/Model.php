@@ -34,7 +34,7 @@ abstract class Model implements JsonSerializable
 
     public static function all(): array
     {
-        return static::query()->where('is_active', 1)->orderBy('username', 'asc')->get();
+        return static::query()->orderBy('id', 'asc')->get();
     }
 
     public static function find($id)

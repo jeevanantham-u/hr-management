@@ -6,44 +6,46 @@ class Router
 {
     protected array $routes = [];
     private Request $request;
+    private $middleware = [];
 
     public function __construct(Request $request)
     {
         $this->request = $request;
     }
 
-    protected function addRoute(string $method, string $path, $handler): void
+    protected function addRoute(string $method, string $path, $handler, array $middleware = []): void
     {
         $this->routes[] = [
             'method' => $method,
             'path' => $path,
             'handler' => $handler,
+            'middleware' => $middleware,
         ];
     }
 
-    public function get(string $route, $controllerAction): void
+    public function get(string $route, $controllerAction, array $middleware = []): void
     {
-        $this->addRoute('GET', $route, $controllerAction);
+        $this->addRoute('GET', $route, $controllerAction, $middleware);
     }
 
-    public function post(string $route, $controllerAction): void
+    public function post(string $route, $controllerAction, array $middleware = []): void
     {
-        $this->addRoute('POST', $route, $controllerAction);
+        $this->addRoute('POST', $route, $controllerAction, $middleware);
     }
 
-    public function patch(string $route, $controllerAction): void
+    public function patch(string $route, $controllerAction, array $middleware = []): void
     {
-        $this->addRoute('PATCH', $route, $controllerAction);
+        $this->addRoute('PATCH', $route, $controllerAction, $middleware);
     }
 
-    public function put(string $route, $controllerAction): void
+    public function put(string $route, $controllerAction, array $middleware = []): void
     {
-        $this->addRoute('PUT', $route, $controllerAction);
+        $this->addRoute('PUT', $route, $controllerAction, $middleware);
     }
 
-    public function delete(string $route, $controllerAction): void
+    public function delete(string $route, $controllerAction, array $middleware = []): void
     {
-        $this->addRoute('DELETE', $route, $controllerAction);
+        $this->addRoute('DELETE', $route, $controllerAction, $middleware);
     }
 
     public function dispatch()
@@ -64,7 +66,7 @@ class Router
                 $routeParams = array_combine($paramNames, array_values($matches)) ?: [];
                 $this->request->setRouteParams($routeParams);
 
-                return $this->executeHandler($route['handler']);
+                return $this->executeHandler($route['handler'], $route['middleware']);
             }
         }
 
@@ -83,8 +85,20 @@ class Router
         return '#^' . $regex . '$#';
     }
 
-    private function executeHandler($handler)
+    // Add middleware to specific routes
+    public function middleware(array $middlewareClasses): self
     {
+        $this->middleware = $middlewareClasses;
+        return $this;
+    }
+
+    private function executeHandler($handler, array $middleware = [])
+    {
+        foreach ($middleware as $middlewareClass) {
+            $middlewareInstance = new $middlewareClass();
+            $middlewareInstance->handle($this->request);
+        }
+
         if (is_array($handler)) {
             [$class, $method] = $handler;
             $controller = new $class();

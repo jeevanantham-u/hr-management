@@ -12,3 +12,195 @@ employee_trainings: Tracks hotel safety, hygiene, and hospitality training compl
 salary_components / pay_slips: Breaks down salary structure into Base Pay, Overtime, Tips, Allowances, and Deductions/Taxes.
 
 employee_expenses: Handles reimbursement requests for hotel operational expenses incurred by staff (e.g., id, employee_id, amount, category, receipt_path, status).
+__________________________________________________________________________________________________________________
+
+Auth user modlue+++++++++++++++++++++++
+
+Based on your codebase, here are the **key strategies** to verify users and protect application features:
+
+## 1. **Verify JWT Token in Request Header**
+
+Create a method in your **AuthService** to validate tokens:
+
+```php
+public function verifyToken($token)
+{
+    $jwtSecret = $_ENV['JWT_SECRET'] ?? $_SERVER['JWT_SECRET'] ?? getenv('JWT_SECRET');
+
+    if (!$jwtSecret) {
+        throw new Exception('JWT secret is not configured');
+    }
+
+    try {
+        $decoded = JWT::decode($token, new Key($jwtSecret, 'HS256'));
+        return $decoded;
+    } catch (\Exception $e) {
+        throw new Exception('Invalid or expired token: ' . $e->getMessage());
+    }
+}
+```
+
+## 2. **Create Authentication Middleware** (Recommended)
+
+Create app/Middleware/AuthMiddleware.php:
+
+```php
+<?php
+
+namespace App\Middleware;
+
+use App\Services\AuthService;
+use App\Core\Request;
+use Exception;
+
+class AuthMiddleware
+{
+    private AuthService $authService;
+
+    public function __construct()
+    {
+        $this->authService = new AuthService();
+    }
+
+    public function handle(Request $request)
+    {
+        $token = $this->extractToken($request);
+
+        if (!$token) {
+            http_response_code(401);
+            echo json_encode([
+                'success' => false,
+                'message' => 'Unauthorized - No token provided'
+            ]);
+            exit;
+        }
+
+        try {
+            $user = $this->authService->verifyToken($token);
+            // Store authenticated user in request
+            $request->setUser($user);
+            return true;
+        } catch (Exception $e) {
+            http_response_code(401);
+            echo json_encode([
+                'success' => false,
+                'message' => 'Unauthorized - ' . $e->getMessage()
+            ]);
+            exit;
+        }
+    }
+
+    private function extractToken(Request $request): ?string
+    {
+        $authHeader = $request->header('Authorization');
+        
+        if (!$authHeader) {
+            return null;
+        }
+
+        if (preg_match('/Bearer\s+(.+)/', $authHeader, $matches)) {
+            return $matches[1];
+        }
+
+        return null;
+    }
+}
+```
+
+## 3. **Update Request Class** to store user:
+
+Add to `Request.php`:
+
+```php
+private $user = null;
+
+public function setUser($user): void
+{
+    $this->user = $user;
+}
+
+public function user()
+{
+    return $this->user;
+}
+
+public function isAuthenticated(): bool
+{
+    return $this->user !== null;
+}
+```
+
+## 4. **Update Router to Support Middleware**
+
+Modify `Router.php`:
+
+```php
+protected array $routes = [];
+private Request $request;
+private array $middleware = [];
+
+// Add middleware to specific routes
+public function middleware(array $middlewareClasses): self
+{
+    $this->middleware = $middlewareClasses;
+    return $this;
+}
+
+private function executeHandler($handler)
+{
+    // Execute middleware first
+    foreach ($this->middleware as $middlewareClass) {
+        $middleware = new $middlewareClass();
+        $middleware->handle($this->request);
+    }
+
+    if (is_array($handler)) {
+        [$class, $method] = $handler;
+        $controller = new $class();
+        return $controller->$method($this->request);
+    }
+
+    if (is_callable($handler)) {
+        return $handler($this->request);
+    }
+}
+```
+
+## 5. **Protect Routes in `api.php`**:
+
+```php
+use App\Middleware\AuthMiddleware;
+
+// Public routes
+$router->post("/$version/login", [AuthController::class, 'login']);
+$router->post("/$version/register", [AuthController::class, 'register']);
+
+// Protected routes
+$router->middleware([AuthMiddleware::class]);
+$router->get($userPrefix, [UserController::class, 'index']);
+$router->get("$userPrefix/{id}", [UserController::class, 'show']);
+$router->post("$userPrefix/create", [UserController::class, 'store']);
+```
+
+## 6. **Check User in Controllers**:
+
+```php
+public function index(Request $request)
+{
+    if (!$request->isAuthenticated()) {
+        $this->error('Unauthorized', null, 401);
+    }
+
+    $user = $request->user();
+    // Your logic here
+}
+```
+
+## **Quick Summary**
+- **Extract token** from `Authorization: Bearer <token>` header
+- **Verify JWT** using your secret key
+- **Use middleware** to protect routes automatically
+- **Store user data** in Request for access throughout your app
+- **Check role/permissions** in controllers as needed
+
+Would you like me to implement any of these in your codebase?

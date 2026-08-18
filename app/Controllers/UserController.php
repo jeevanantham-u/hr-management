@@ -14,8 +14,14 @@ class UserController extends Controller
         $this->userService = new UserService();
     }
 
-    public function index()
+    public function index(Request $request)
     {
+        if (!$request->isAuthenticated()) {
+            $this->error('Unauthorized', null, 401);
+        }
+
+        $user = $request->user();
+
         $users = $this->userService->getAllUsers();
         $this->success($users, "All users retrieved successfully.", 200);
     }

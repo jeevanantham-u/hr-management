@@ -15,6 +15,7 @@
     ],
     "minimum-stability": "dev",
     "require": {
-        "vlucas/phpdotenv": "*"
+        "vlucas/phpdotenv": "*",
+        "firebase/php-jwt": "dev-main"
     }
 }

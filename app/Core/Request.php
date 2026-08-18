@@ -10,35 +10,50 @@ class Request
     private string $method;
     private string $path;
     private array $headers;
+    private $user = null;
 
     public function __construct()
     {
         $this->method = $_SERVER['REQUEST_METHOD'] ?? $_POST['_method'] ?? 'GET';
 
-        $url = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+        $url = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?? '/';
         $baseUrl = '/resources';
 
-        if (str_starts_with($url, $baseUrl)) {
-            $this->path = substr($url, strlen($baseUrl));
+        $this->path = $url;
+
+        if ($this->path === '' || $this->path === false) {
+            $this->path = '/';
         }
 
-        if ($url === '' || $url === false) {
-            $this->path = '/';
+        if (str_starts_with($this->path, $baseUrl)) {
+            $this->path = substr($this->path, strlen($baseUrl));
         }
 
         $this->headers = getallheaders() ?: [];
         $this->queryParams = $_GET ?? [];
 
-        if (in_array($this->method, ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'])) {
-            $contentType = $this->headers['Content-Type'] ?? '';
+        $contentType = $this->headers['Content-Type']
+            ?? $this->headers['content-type']
+            ?? $_SERVER['CONTENT_TYPE']
+            ?? '';
 
-            if (str_contains($contentType, 'application/json')) {
-                $input = file_get_contents('php://input');
-                $this->bodyParams = json_decode($input, true) ?? [];
-            } else {
-                $this->bodyParams = $_POST ?? [];
-            }
+        if (str_contains($contentType, 'application/json')) {
+            $input = file_get_contents('php://input');
+            $this->bodyParams = json_decode($input, true) ?? [];
+        } else {
+            $this->bodyParams = $_POST ?? [];
         }
+
+        // if (in_array($this->method, ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'])) {
+        //     $contentType = $this->headers['Content-Type'] ?? '';
+
+        //     if (str_contains($contentType, 'application/json')) {
+        //         $input = file_get_contents('php://input');
+        //         $this->bodyParams = json_decode($input, true) ?? [];
+        //     } else {
+        //         $this->bodyParams = $_POST ?? [];
+        //     }
+        // }
     }
 
     public function method(): string
@@ -74,7 +89,7 @@ class Request
         return $this->bodyParams[$key] ?? $default;
     }
 
-     public function setRouteParams(array $params): void
+    public function setRouteParams(array $params): void
     {
         $this->routeParams = $params;
     }
@@ -84,9 +99,25 @@ class Request
         $header = $this->header('Authorization');
 
         if ($header && str_starts_with($header, 'Bearer ')) {
-            return substr($header, 7);
+            $s = substr($header, 7);
+            return $s;
         }
 
         return null;
+    }
+
+    public function setUser($user): void
+    {
+        $this->user = $user;
+    }
+
+    public function user()
+    {
+        return $this->user;
+    }
+
+    public function isAuthenticated(): bool
+    {
+        return $this->user !== null;
     }
 }

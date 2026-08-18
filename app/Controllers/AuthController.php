@@ -22,10 +22,14 @@ class AuthController extends Controller
             'password' => $request->body('password')
         ];
 
-        $this->validate($data, [
+        $errors = $this->validate($data, [
             'email' => 'required|email',
             'password' => 'required'
         ]);
+
+        if (!empty($errors)) {
+            $this->error('Validation failed', $errors, 422);
+        }
 
         $result = $this->authService->login($data['email'], $data['password']);
 
