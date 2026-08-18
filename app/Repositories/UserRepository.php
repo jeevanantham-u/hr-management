@@ -14,12 +14,21 @@ class UserRepository
     public function find($id)
     {
         return User::find($id);
-        // return 0;
+    }
+
+    public function findByEmail($email)
+    {
+        return User::findByEmail($email);
     }
 
     public function create($data)
     {
-        return User::create($data);
+        $user = new User($data);
+        if (isset($data['password'])) {
+            $user->setPasswordAttribute($data['password']);
+        }
+        $user->save();
+        return $user;
     }
 
     public function update($id, $data)

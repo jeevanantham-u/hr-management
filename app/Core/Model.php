@@ -34,7 +34,7 @@ abstract class Model implements JsonSerializable
 
     public static function all(): array
     {
-        return static::query()->where('is_active', 1)->orderBy('username', 'asc')->get();
+        return static::query()->orderBy('id', 'asc')->get();
     }
 
     public static function find($id)
@@ -47,6 +47,18 @@ abstract class Model implements JsonSerializable
         $model = new static($data);
         $model->save();
         return $model;
+    }
+
+    public static function where(string $column, $operator, $value = null): QueryBuilder
+    {
+        if ($value === null) {
+            $value = $operator;
+            $operator = '=';
+        }
+
+        $instance = new static();
+        return (new QueryBuilder($instance->table, $instance->primaryKey, static::class))
+            ->where($column, $operator, $value);
     }
 
     protected function fillableAttributes()
@@ -72,7 +84,7 @@ abstract class Model implements JsonSerializable
         $id = Database::insert($sql, array_values($fillable));
         if ($id) {
             $this->attributes['id'] = $id;
-            
+
             foreach ($fillable as $k => $v) {
                 $this->attributes[$k] = $v;
             }
