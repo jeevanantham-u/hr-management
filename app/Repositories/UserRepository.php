@@ -54,9 +54,12 @@ class UserRepository
     {
         $user = $this->find($id);
 
-        if (!$user) {
+        if (!$user || $user->is_active == 0) {
             return false;
         }
-        return $user->delete();
+
+        $user->is_active = 0;
+
+        return $user->save();
     }
 }

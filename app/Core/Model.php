@@ -133,7 +133,7 @@ abstract class Model implements JsonSerializable
             return 0;
         }
 
-        $sql = "UPDATE {$this->table} SET is_active = 0 WHERE {$this->primaryKey} = ?";
+        $sql = "DELETE FROM {$this->table}  WHERE {$this->primaryKey} = ?";
 
         return Database::delete($sql, [$this->attributes[$this->primaryKey]]);
     }

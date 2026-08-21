@@ -19,6 +19,8 @@ class ExceptionHandler
             echo json_encode([
                 'success' => false,
                 'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine()
             ]);
         });
     }

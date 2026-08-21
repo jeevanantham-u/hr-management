@@ -64,7 +64,7 @@ class AuthService
             'role' => $user->role_id,
             'iat' => time(),
             'iss' => 'localhost/resources',
-            'exp' => time() + (3600)
+            'exp' => time() + (36000)
         ];
 
         return JWT::encode($payload, $jwtSecret, 'HS256');

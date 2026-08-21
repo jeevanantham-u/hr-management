@@ -154,3 +154,8 @@ CREATE TABLE IF NOT EXISTS payroll (
         REFERENCES employee(id) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+ALTER TABLE `employees`
+ADD CONSTRAINT `fk_employees_department`
+FOREIGN KEY (`department_id`) REFERENCES `departments`(`id`)
+ON DELETE SET NULL
+ON UPDATE CASCADE;

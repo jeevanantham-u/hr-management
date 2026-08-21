@@ -14,11 +14,13 @@ class Request
 
     public function __construct()
     {
+        #method
         $this->method = $_SERVER['REQUEST_METHOD'] ?? $_POST['_method'] ?? 'GET';
 
         $url = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?? '/';
         $baseUrl = '/resources';
 
+        #path
         $this->path = $url;
 
         if ($this->path === '' || $this->path === false) {
@@ -29,7 +31,9 @@ class Request
             $this->path = substr($this->path, strlen($baseUrl));
         }
 
+        #headers
         $this->headers = getallheaders() ?: [];
+        #query parmeters
         $this->queryParams = $_GET ?? [];
 
         $contentType = $this->headers['Content-Type']
@@ -37,23 +41,13 @@ class Request
             ?? $_SERVER['CONTENT_TYPE']
             ?? '';
 
+        #body parmeters
         if (str_contains($contentType, 'application/json')) {
             $input = file_get_contents('php://input');
             $this->bodyParams = json_decode($input, true) ?? [];
         } else {
             $this->bodyParams = $_POST ?? [];
         }
-
-        // if (in_array($this->method, ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'])) {
-        //     $contentType = $this->headers['Content-Type'] ?? '';
-
-        //     if (str_contains($contentType, 'application/json')) {
-        //         $input = file_get_contents('php://input');
-        //         $this->bodyParams = json_decode($input, true) ?? [];
-        //     } else {
-        //         $this->bodyParams = $_POST ?? [];
-        //     }
-        // }
     }
 
     public function method(): string

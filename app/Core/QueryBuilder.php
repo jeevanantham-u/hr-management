@@ -152,6 +152,22 @@ class QueryBuilder
         return $results[0] ?? null;
     }
 
+    public function count()
+    {
+        $sql = "SELECT COUNT(*) AS count FROM {$this->table}";
+
+        if (!empty($this->wheres)) {
+            $whereClause = implode(array_map(
+                fn($where) => "{$where[0]} {$where[1]}",
+                $this->wheres
+            ));
+            $sql .= " WHERE $whereClause";
+        }
+
+        $results = Database::selectOne($sql, $this->bindings);
+        return (int) ($result['count'] ?? 0);
+    }
+
     public function find(mixed $id): mixed
     {
         return $this->where($this->primaryKey, $id)->first();
